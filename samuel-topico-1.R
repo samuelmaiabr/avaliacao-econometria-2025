@@ -6,7 +6,7 @@
 # Samuel Maia - 2025-05-00
 # Econometria I - Professora Ana Hermeto
 
-# Objetivo: Estimar modelos MQO e analisar pressupostos seguindo o roteiro
+# A numeração entre parênteses ao longo do script corresponde às seções e subseções do relatório principal (e.g., 2.4.1 refere-se à subseção "2.4.1 Modelo 1: Regressão simples com anos de estudo").
 # ========================== #
 
 
@@ -14,7 +14,7 @@
 ##### Preparando ambiente #####
 
 # Pacotes necessários
-pacman::p_load(tidyverse, haven, car, lmtest, sandwich, modelsummary, stargazer, ggplot2, extrafont, car, lmtest, sandwich, Cairo)
+pacman::p_load(tidyverse, haven, car, lmtest, sandwich, modelsummary, stargazer, ggplot2, extrafont, car, lmtest, sandwich, Cairo, devtools)
 # comment: carregamos `tidyverse` para manipulação, `haven` para importar `.dta`, ggplot2, e demais pacotes para diagnóstico e tabelas de regressão (`car` para VIF; `lmtest` para heterocedasticidade, `sandwich` para erros robustos)
 
 
@@ -72,7 +72,7 @@ glimpse(pnad_clean$sexo)
 
 
 # ========================== #
-##### 2.3 Descritivas #####
+##### (2.3) Descritivas #####
 # ========================== #
 
 
@@ -141,11 +141,11 @@ plot_histogram_latex(pnad_clean, idade2, "figs/hist_idade2.pdf", binwidth = 200)
 
 
 # ========================== #
-##### 2.4 Modelos #####
+##### (2.4) Modelos #####
 # ========================== #
 
 
-###### 2.4.1 Modelo 1: Regressão simples ####
+###### (2.4.1) Modelo 1: Regressão simples ####
 modelo1 <- lm(log_rend ~ anosest, data = pnad_clean)
 
 print(modelo1)
@@ -165,7 +165,7 @@ cat("Beta1 manual:", beta1_hat, "\nBeta0 manual:", beta0_hat)
 
 
 
-###### 2.4.2 Modelo 2: + idade e idade² ####
+###### (2.4.2) Modelo 2: + idade e idade² ####
 modelo2 <- lm(log_rend ~ anosest + idade + idade2, data = pnad_clean)
 
 print(modelo2)
@@ -173,13 +173,13 @@ summary(modelo2)
 
 
 
-###### 2.4.3 Modelo 3: + dummy sexo ####
+###### (2.4.3) Modelo 3: + dummy sexo ####
 modelo3 <- lm(log_rend ~ anosest + idade + idade2 + sexo, data = pnad_clean)
 
 print(modelo3)
 summary(modelo3)
 
-###### 2.4.4 Modelo 4: + interação anosest:sexo ####
+###### (2.4.4) Modelo 4: + interação anosest:sexo ####
 modelo4 <- lm(log_rend ~ anosest * sexo + idade + idade2, data = pnad_clean)
 
 print(modelo4)
@@ -190,7 +190,7 @@ summary(modelo4)
 
 
 # ========================== #
-##### 2.6 Comparação dos modelos #####
+##### (2.6) Comparando os modelos #####
 # ========================== #
 
 # Tabela de comparação dos modelos (coef., erros padrão, R², N)
@@ -205,7 +205,7 @@ modelsummary(
 
 
 # ========================== #
-##### 2.5/2.6 Diagnóstico de pressupostos ##### 
+##### (2.5.3) Diagnóstico de pressupostos ##### 
 # ========================== #
 
 # Multicolinearidade
@@ -248,9 +248,55 @@ ggplot(pnad_clean, aes(x = anosest, y = log_rend)) +
         panel.border = element_rect(color = "gray", fill = NA)
     )
 ggsave("figs/disp_anosest_logrend.pdf", width = 5, height = 3.2, device = cairo_pdf)
+# ========================== #
 
 
-###### 2. Resíduos × Ajustados (Modelo 2) ####
+# ========================== #
+###### 2. Densidades
+
+# Densidade da variável dependente (log_rend) ####
+ggplot(pnad_clean, aes(x = log_rend)) +
+    geom_density(fill = "gray70", color = "black", alpha = 0.7) +
+    labs(
+        title = "Densidade estimada do logaritmo da renda do trabalho",
+        x = "log(renda do trabalho)",
+        y = "Densidade"
+    ) +
+    theme_minimal(base_family = "STIX Two Text", base_size = 11) +
+    theme(
+        plot.title = element_text(hjust = 0.5),
+        axis.title = element_text(),
+        panel.grid = element_blank()
+    )
+
+# Salvar figura
+ggsave("figs/f-densidade_logrend.pdf", width = 5, height = 3.2, device = cairo_pdf)
+
+
+# Densidade de log_rend por sexo
+ggplot(pnad_clean, aes(x = log_rend, fill = sexo)) +
+    geom_density(alpha = 0.5, color = "black") +
+    scale_fill_manual(values = c("Mulher" = "#4575b4", "Homem" = "#d73027")) +
+    labs(
+        x = "log(renda do trabalho)",
+        y = "Densidade",
+        fill = NULL
+    ) +
+    theme_minimal(base_family = "STIX Two Text", base_size = 11) +
+    theme(
+        axis.title = element_text(),
+        axis.text = element_text(size = 10),
+        panel.grid = element_blank(),
+        legend.position = "top"
+    )
+
+# Salvar figura
+ggsave("figs/f-densidade_logrend_sexo.pdf", width = 5.5, height = 3.5, device = cairo_pdf)
+# ========================== #
+
+
+# ========================== #
+###### 3. Resíduos × Ajustados (Modelo 2) ####
 res_df <- data.frame(
     ajustados = fitted(modelo2),
     residuos  = resid(modelo2)
@@ -271,10 +317,11 @@ ggplot(res_df, aes(x = ajustados, y = residuos)) +
         panel.border = element_rect(color = "gray", fill = NA)
     )
 ggsave("figs/residuos_modelo2.pdf", width = 5, height = 3.2, device = cairo_pdf)
+# ========================== #
 
 
-
-###### 3. Curva de predição idade–renda (Modelo 2) ####
+# ========================== #
+###### 4. Curva de predição idade–renda (Modelo 2) ####
 idade_seq <- 18:70
 grid <- data.frame(
     idade = idade_seq,
@@ -297,9 +344,11 @@ ggplot(grid, aes(x = idade, y = yhat)) +
         panel.border = element_rect(color = "black", fill = NA)
     )
 ggsave("figs/curva_idade_renda.pdf", width = 5, height = 3.2, device = cairo_pdf)
+# ========================== #
 
 
-###### 4. Interação Anos de Estudo × Sexo (Modelo 4) ####
+# ========================== #
+###### 5. Interação Anos de Estudo × Sexo (Modelo 4) ####
 grid2 <- expand.grid(
     anosest = seq(min(pnad_clean$anosest), max(pnad_clean$anosest)),
     sexo    = levels(pnad_clean$sexo)
@@ -337,6 +386,11 @@ ggplot(pnad_clean, aes(x = anosest, y = log_rend, color = sexo)) +
 
 ggsave("figs/interacao_anosest_sexo.pdf", width = 5, height = 3.2, device = cairo_pdf)
 # ========================== #
+
+
+writeLines(capture.output(devtools::session_info()), "session-info.txt")
+# ========================== #
+
 
 
 
