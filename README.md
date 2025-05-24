@@ -23,4 +23,4 @@ Os scripts foram organizados com comentários e numeração coerente com o relat
 
 ## Informações da sessão R
 
-A versão do R, sistema operacional, pacotes utilizados e seus caminhos de instalação estão documentados no arquivo [`session-info.txt`](session-info.txt), gerado com `devtools::session_info()`. Esse registro complementa os scripts e reforça o compromisso com a reprodutibilidade computacional.
+A versão do R, sistema operacional, pacotes utilizados e seus caminhos de instalação estão documentados no arquivo [`session-info.txt`](session-info.txt), gerado com `devtools::session_info()`.
