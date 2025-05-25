@@ -1,1 +1,0 @@
-# VIF, heterocedasticidade, MQP
