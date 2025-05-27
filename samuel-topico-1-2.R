@@ -122,6 +122,29 @@ summary(modelo4)
 
 
 # ========================== #
+# ========================== #
+
+###### (2.4.1) Estimação manual do Modelo 1 ####
+
+x <- pnad_clean$anosest
+y <- pnad_clean$log_rend
+
+mean(x)        # média de anos de estudo
+mean(y)        # média de log da renda
+var(x)         # variância de anos de estudo
+cov(x, y)      # covariância entre anos de estudo e log da renda
+
+beta1_hat <- cov(x, y) / var(x)
+beta0_hat <- mean(y) - beta1_hat * mean(x)
+
+cat("Beta1 manual:", beta1_hat, "\nBeta0 manual:", beta0_hat)
+
+# ========================== #
+# ========================== #
+
+
+
+# ========================== #
 #### AV.: TÓPICO 2 ####
 # ========================== #
 
